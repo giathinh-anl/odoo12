@@ -12,17 +12,17 @@
                         string="Xếp lịch bù"
                         type="object"
                         class="btn-primary"
-                        attrs="{'invisible': [('state','!=','chua_xep')]}"/>
+                        invisible="state != 'chua_xep'"/>
                     <button name="action_hoan_thanh"
                         string="Đã học bù xong"
                         type="object"
                         class="btn-success"
-                        attrs="{'invisible': [('state','!=','da_xep')]}"/>
+                        invisible="state != 'da_xep'"/>
                     <button name="action_huy"
                         string="Huỷ"
                         type="object"
                         class="btn-danger"
-                        attrs="{'invisible': [('state','in',['hoan_thanh','huy'])]}"/>
+                        invisible="state in ['hoan_thanh', 'huy']"/>
                     <field name="state" widget="statusbar"
                         statusbar_visible="chua_xep,da_xep,hoan_thanh"/>
                 </header>
@@ -30,7 +30,7 @@
                     <div class="oe_button_box" name="button_box">
                         <button class="oe_stat_button" type="object"
                             name="action_hoan_thanh" icon="fa-check"
-                            attrs="{'invisible': [('state','=','hoan_thanh')]}">
+                            invisible="state == 'hoan_thanh'">
                             <field name="days_since_absent" widget="statinfo"
                                 string="Ngày chưa bù"/>
                         </button>
@@ -83,10 +83,10 @@
                 <field name="is_urgent" invisible="1"/>
                 <button name="action_xep_lich" type="object"
                     string="Xếp lịch" class="btn-sm btn-primary"
-                    attrs="{'invisible': [('state','!=','chua_xep')]}"/>
+                    invisible="state != 'chua_xep'"/>
                 <button name="action_hoan_thanh" type="object"
                     string="Xong" class="btn-sm btn-success"
-                    attrs="{'invisible': [('state','!=','da_xep')]}"/>
+                    invisible="state != 'da_xep'"/>
             </tree>
         </field>
     </record>
