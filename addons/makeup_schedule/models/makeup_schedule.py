@@ -1,6 +1,7 @@
 from odoo import models, fields, api
 from datetime import timedelta
 
+
 class MakeupSchedule(models.Model):
     _name = 'makeup.schedule'
     _description = 'Lịch Học Bù'
@@ -33,7 +34,7 @@ class MakeupSchedule(models.Model):
 
     # ── Lịch học bù ─────────────────────────────
     makeup_date = fields.Date(
-        string='Ngày học bù',
+        string='Ngày học bù'
     )
     makeup_time = fields.Char(
         string='Giờ học bù',
@@ -56,10 +57,11 @@ class MakeupSchedule(models.Model):
         compute='_compute_days_since_absent',
         store=False
     )
+
     is_urgent = fields.Boolean(
         string='Cần xếp gấp',
         compute='_compute_is_urgent',
-        store=False
+        store=True
     )
 
     @api.depends('absent_date', 'state')
@@ -72,27 +74,31 @@ class MakeupSchedule(models.Model):
             else:
                 rec.days_since_absent = 0
 
-    @api.depends('days_since_absent')
+    @api.depends('absent_date', 'state')
     def _compute_is_urgent(self):
+        today = fields.Date.today()
         for rec in self:
-            rec.is_urgent = rec.days_since_absent >= 3
+            if rec.absent_date and rec.state == 'chua_xep':
+                delta = today - rec.absent_date
+                rec.is_urgent = delta.days >= 3
+            else:
+                rec.is_urgent = False
 
     # ── Nút bấm hành động ───────────────────────
     def action_xep_lich(self):
-        """Chuyển sang trạng thái đã xếp lịch"""
-        self.state = 'da_xep'
+        for rec in self:
+            rec.state = 'da_xep'
 
     def action_hoan_thanh(self):
-        """Đánh dấu đã học bù xong"""
-        self.state = 'hoan_thanh'
+        for rec in self:
+            rec.state = 'hoan_thanh'
 
     def action_huy(self):
-        """Huỷ lịch học bù"""
-        self.state = 'huy'
+        for rec in self:
+            rec.state = 'huy'
 
     @api.model
     def create(self, vals):
-        """Khi tạo mới, tự gợi ý ngày học bù = ngày vắng + 3 ngày"""
         record = super().create(vals)
         if record.absent_date and not record.makeup_date:
             record.makeup_date = record.absent_date + timedelta(days=3)
