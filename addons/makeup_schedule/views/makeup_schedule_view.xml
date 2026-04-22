@@ -101,7 +101,7 @@
                 <field name="class_name" string="Lớp"/>
                 <separator/>
                 <filter name="chua_xep" string="Chưa xếp lịch"
-                    domain="[('state','=','chua_xep')]"/>
+                    domain="[('days_since_absent','>=',3),('state','=','chua_xep')]"/>
                 <filter name="can_gap" string="Cần xếp gấp"
                     domain="[('is_urgent','=',True),('state','=','chua_xep')]"/>
                 <filter name="da_xep" string="Đã xếp lịch"
