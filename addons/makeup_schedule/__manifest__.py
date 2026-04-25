@@ -11,7 +11,7 @@
     ''',
     'author': 'Nhóm 5 - UTH',
     'category': 'Education',
-    'depends': ['base', 'calendar'],
+    'depends': ['base', 'contacts', 'calendar'],
     'data': [
         'security/ir.model.access.csv',
         'views/makeup_schedule_view.xml',

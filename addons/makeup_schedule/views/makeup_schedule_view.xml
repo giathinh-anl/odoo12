@@ -9,52 +9,50 @@
             <form string="Lịch Học Bù">
                 <header>
                     <button name="action_xep_lich"
-                            string="Xếp lịch bù"
-                            type="object"
-                            class="btn-primary"
-                            invisible="state != 'chua_xep'"/>
-
+                        string="Xếp lịch bù"
+                        type="object"
+                        class="btn-primary"
+                        invisible="state != 'chua_xep'"/>
                     <button name="action_hoan_thanh"
-                            string="Đã học bù xong"
-                            type="object"
-                            class="btn-success"
-                            invisible="state != 'da_xep'"/>
-
+                        string="Đã học bù xong"
+                        type="object"
+                        class="btn-success"
+                        invisible="state != 'da_xep'"/>
                     <button name="action_huy"
-                            string="Huỷ"
-                            type="object"
-                            class="btn-danger"
-                            invisible="state in ['hoan_thanh', 'huy']"/>
-
-                    <field name="state"
-                           widget="statusbar"
-                           statusbar_visible="chua_xep,da_xep,hoan_thanh,huy"/>
+                        string="Huỷ"
+                        type="object"
+                        class="btn-danger"
+                        invisible="state in ['hoan_thanh', 'huy']"/>
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="chua_xep,da_xep,hoan_thanh,huy"/>
                 </header>
 
                 <sheet>
                     <div class="oe_button_box" name="button_box">
                         <button class="oe_stat_button"
-                                type="object"
-                                name="action_hoan_thanh"
-                                icon="fa-check"
-                                invisible="state == 'hoan_thanh'">
+                            type="object"
+                            name="action_hoan_thanh"
+                            icon="fa-check"
+                            invisible="state == 'hoan_thanh'">
                             <field name="days_since_absent"
-                                   widget="statinfo"
-                                   string="Ngày chưa bù"/>
+                                widget="statinfo"
+                                string="Ngày chưa bù"/>
                         </button>
                     </div>
 
                     <group>
                         <group string="Thông tin học sinh">
-                            <field name="student_name"/>
+                            <field name="student_id"/>
                             <field name="class_name"/>
                             <field name="subject"/>
+                            <field name="phone" readonly="1"/>
+                            <field name="email" readonly="1"/>
                         </group>
 
                         <group string="Thông tin vắng">
                             <field name="absent_date"/>
                             <field name="absent_reason"/>
-                            <field name="is_urgent" readonly="1"/>
+                            <field name="is_urgent" widget="boolean_toggle" readonly="1"/>
                         </group>
                     </group>
 
@@ -77,35 +75,34 @@
         <field name="model">makeup.schedule</field>
         <field name="arch" type="xml">
             <tree string="Danh sách lịch học bù"
-                  decoration-danger="is_urgent == True and state == 'chua_xep'"
-                  decoration-warning="state == 'da_xep'"
-                  decoration-success="state == 'hoan_thanh'"
-                  decoration-muted="state == 'huy'">
-                <field name="student_name"/>
+                decoration-danger="is_urgent == True and state == 'chua_xep'"
+                decoration-warning="state == 'da_xep'"
+                decoration-success="state == 'hoan_thanh'"
+                decoration-muted="state == 'huy'">
+                <field name="student_id"/>
                 <field name="class_name"/>
                 <field name="subject"/>
                 <field name="absent_date"/>
                 <field name="makeup_date"/>
                 <field name="makeup_time"/>
                 <field name="days_since_absent"/>
-                <field name="state"
-                       widget="badge"
-                       decoration-danger="state == 'chua_xep'"
-                       decoration-warning="state == 'da_xep'"
-                       decoration-success="state == 'hoan_thanh'"/>
+                <field name="state" widget="badge"
+                    decoration-danger="state == 'chua_xep'"
+                    decoration-warning="state == 'da_xep'"
+                    decoration-success="state == 'hoan_thanh'"/>
                 <field name="is_urgent" invisible="1"/>
 
                 <button name="action_xep_lich"
-                        type="object"
-                        string="Xếp lịch"
-                        class="btn-sm btn-primary"
-                        invisible="state != 'chua_xep'"/>
+                    type="object"
+                    string="Xếp lịch"
+                    class="btn-sm btn-primary"
+                    invisible="state != 'chua_xep'"/>
 
                 <button name="action_hoan_thanh"
-                        type="object"
-                        string="Xong"
-                        class="btn-sm btn-success"
-                        invisible="state != 'da_xep'"/>
+                    type="object"
+                    string="Xong"
+                    class="btn-sm btn-success"
+                    invisible="state != 'da_xep'"/>
             </tree>
         </field>
     </record>
@@ -116,38 +113,41 @@
         <field name="model">makeup.schedule</field>
         <field name="arch" type="xml">
             <search string="Tìm kiếm lịch học bù">
-                <field name="student_name" string="Học sinh"/>
+                <field name="student_id" string="Học sinh"/>
                 <field name="class_name" string="Lớp"/>
+                <field name="subject" string="Môn học"/>
                 <separator/>
 
                 <filter name="chua_xep"
-                        string="Chưa xếp lịch"
-                        domain="[('state','=','chua_xep')]"/>
+                    string="Chưa xếp lịch"
+                    domain="[('state','=','chua_xep')]"/>
+
                 <filter name="can_gap"
-                        string="Cần xếp gấp"
-                        domain="[('is_urgent','=',True),('state','=','chua_xep')]"/>
+                    string="Cần xếp gấp"
+                    domain="[('is_urgent','=',True),('state','=','chua_xep')]"/>
+
                 <filter name="da_xep"
-                        string="Đã xếp lịch"
-                        domain="[('state','=','da_xep')]"/>
+                    string="Đã xếp lịch"
+                    domain="[('state','=','da_xep')]"/>
+
                 <filter name="hoan_thanh"
-                        string="Đã học bù"
-                        domain="[('state','=','hoan_thanh')]"/>
-                <filter name="da_huy"
-                        string="Đã huỷ"
-                        domain="[('state','=','huy')]"/>
+                    string="Đã học bù"
+                    domain="[('state','=','hoan_thanh')]"/>
 
                 <separator/>
 
                 <group expand="0" string="Nhóm theo">
                     <filter name="group_class"
-                            string="Lớp"
-                            context="{'group_by': 'class_name'}"/>
+                        string="Lớp"
+                        context="{'group_by': 'class_name'}"/>
+
                     <filter name="group_subject"
-                            string="Môn"
-                            context="{'group_by': 'subject'}"/>
+                        string="Môn"
+                        context="{'group_by': 'subject'}"/>
+
                     <filter name="group_state"
-                            string="Trạng thái"
-                            context="{'group_by': 'state'}"/>
+                        string="Trạng thái"
+                        context="{'group_by': 'state'}"/>
                 </group>
             </search>
         </field>
@@ -170,18 +170,18 @@
 
     <!-- ── MENU ── -->
     <menuitem id="menu_makeup_root"
-              name="Lịch Học Bù"
-              sequence="15"/>
+        name="Lịch Học Bù"
+        sequence="15"/>
 
     <menuitem id="menu_makeup_all"
-              name="Tất cả lịch bù"
-              parent="menu_makeup_root"
-              action="makeup_schedule_action"
-              sequence="1"/>
+        name="Tất cả lịch bù"
+        parent="menu_makeup_root"
+        action="makeup_schedule_action"
+        sequence="1"/>
 
     <menuitem id="menu_makeup_urgent"
-              name="Cần xếp gấp"
-              parent="menu_makeup_root"
-              action="makeup_schedule_action"
-              sequence="2"/>
+        name="Cần xếp gấp"
+        parent="menu_makeup_root"
+        action="makeup_schedule_action"
+        sequence="2"/>
 </odoo>
