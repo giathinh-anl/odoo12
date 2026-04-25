@@ -7,7 +7,6 @@ class MakeupSchedule(models.Model):
     _description = 'Lịch Học Bù'
     _order = 'absent_date desc'
 
-    # ── Thông tin học sinh ──────────────────────
     student_id = fields.Many2one(
         'res.partner',
         string='Tên học sinh',
@@ -28,11 +27,11 @@ class MakeupSchedule(models.Model):
 
     subject = fields.Selection([
         ('toan', 'Toán'),
+        ('ngu_van', 'Ngữ văn'),
         ('tieng_viet', 'Tiếng Việt'),
         ('tieng_anh', 'Tiếng Anh'),
     ], string='Môn học', required=True)
 
-    # ── Thông tin liên hệ từ Contacts ───────────
     phone = fields.Char(
         string='Số điện thoại',
         related='student_id.phone',
@@ -47,7 +46,6 @@ class MakeupSchedule(models.Model):
         readonly=True
     )
 
-    # ── Thông tin vắng ──────────────────────────
     absent_date = fields.Date(
         string='Ngày vắng',
         required=True,
@@ -58,7 +56,6 @@ class MakeupSchedule(models.Model):
         string='Lý do vắng'
     )
 
-    # ── Lịch học bù ─────────────────────────────
     makeup_date = fields.Date(
         string='Ngày học bù'
     )
@@ -82,7 +79,6 @@ class MakeupSchedule(models.Model):
         string='Ghi chú'
     )
 
-    # ── Tính tự động ────────────────────────────
     days_since_absent = fields.Integer(
         string='Số ngày chưa bù',
         compute='_compute_days_since_absent',
@@ -113,7 +109,6 @@ class MakeupSchedule(models.Model):
             else:
                 rec.is_urgent = False
 
-    # ── Nút bấm hành động ───────────────────────
     def action_xep_lich(self):
         for rec in self:
             rec.state = 'da_xep'
