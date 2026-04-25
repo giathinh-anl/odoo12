@@ -46,7 +46,10 @@
 
                     <group>
                         <group string="Thông tin học sinh">
-                            <field name="student_id"/>
+                            <field name="student_id"
+                                string="Tên học sinh"
+                                options="{'no_create': False, 'no_open': False}"/>
+
                             <field name="class_name"/>
                             <field name="subject"/>
                             <field name="phone" readonly="1"/>
@@ -56,7 +59,9 @@
                         <group string="Thông tin vắng">
                             <field name="absent_date"/>
                             <field name="absent_reason"/>
-                            <field name="is_urgent" widget="boolean_toggle" readonly="1"/>
+                            <field name="is_urgent"
+                                widget="boolean_toggle"
+                                readonly="1"/>
                         </group>
                     </group>
 
@@ -84,14 +89,15 @@
                 decoration-success="state == 'hoan_thanh'"
                 decoration-muted="state == 'huy'">
 
-                <field name="student_id"/>
+                <field name="student_id" string="Tên học sinh"/>
                 <field name="class_name"/>
                 <field name="subject"/>
                 <field name="absent_date"/>
                 <field name="makeup_date"/>
                 <field name="makeup_time"/>
 
-                <field name="state" widget="badge"
+                <field name="state"
+                    widget="badge"
                     decoration-danger="state == 'chua_xep'"
                     decoration-warning="state == 'da_xep'"
                     decoration-success="state == 'hoan_thanh'"
