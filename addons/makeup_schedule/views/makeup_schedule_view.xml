@@ -32,22 +32,11 @@
                 </header>
 
                 <sheet>
-                    <div class="oe_button_box" name="button_box">
-                        <button class="oe_stat_button"
-                            type="object"
-                            name="action_hoan_thanh"
-                            icon="fa-check"
-                            invisible="state == 'hoan_thanh'">
-                            <field name="days_since_absent"
-                                widget="statinfo"
-                                string="Ngày chưa bù"/>
-                        </button>
-                    </div>
-
                     <group>
                         <group string="Thông tin học sinh">
                             <field name="student_id"
                                 string="Tên học sinh"
+                                widget="many2one"
                                 options="{'no_create': False, 'no_open': False}"/>
 
                             <field name="class_name"/>
@@ -62,6 +51,7 @@
                             <field name="is_urgent"
                                 widget="boolean_toggle"
                                 readonly="1"/>
+                            <field name="days_since_absent" readonly="1"/>
                         </group>
                     </group>
 
