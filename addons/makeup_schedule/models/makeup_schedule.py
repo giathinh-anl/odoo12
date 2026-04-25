@@ -32,6 +32,21 @@ class MakeupSchedule(models.Model):
         ('tieng_anh', 'Tiếng Anh'),
     ], string='Môn học', required=True)
 
+    # ── Thông tin liên hệ từ Contacts ───────────
+    phone = fields.Char(
+        string='Số điện thoại',
+        related='student_id.phone',
+        store=True,
+        readonly=True
+    )
+
+    email = fields.Char(
+        string='Email',
+        related='student_id.email',
+        store=True,
+        readonly=True
+    )
+
     # ── Thông tin vắng ──────────────────────────
     absent_date = fields.Date(
         string='Ngày vắng',
@@ -45,7 +60,7 @@ class MakeupSchedule(models.Model):
 
     # ── Lịch học bù ─────────────────────────────
     makeup_date = fields.Date(
-        string='Ngày học bù',
+        string='Ngày học bù'
     )
 
     makeup_time = fields.Char(
@@ -63,26 +78,15 @@ class MakeupSchedule(models.Model):
        required=True
     )
 
-    note = fields.Text(string='Ghi chú')
-
-    # ── Thông tin liên hệ liên kết từ Contacts ──
-    phone = fields.Char(
-        string='Số điện thoại',
-        related='student_id.phone',
-        store=True
-    )
-
-    email = fields.Char(
-        string='Email',
-        related='student_id.email',
-        store=True
+    note = fields.Text(
+        string='Ghi chú'
     )
 
     # ── Tính tự động ────────────────────────────
     days_since_absent = fields.Integer(
         string='Số ngày chưa bù',
         compute='_compute_days_since_absent',
-        store=True
+        store=False
     )
 
     is_urgent = fields.Boolean(
@@ -96,25 +100,31 @@ class MakeupSchedule(models.Model):
         today = fields.Date.today()
         for rec in self:
             if rec.absent_date and rec.state != 'hoan_thanh':
-                delta = today - rec.absent_date
-                rec.days_since_absent = delta.days
+                rec.days_since_absent = (today - rec.absent_date).days
             else:
                 rec.days_since_absent = 0
 
-    @api.depends('days_since_absent', 'state')
+    @api.depends('absent_date', 'state')
     def _compute_is_urgent(self):
+        today = fields.Date.today()
         for rec in self:
-            rec.is_urgent = rec.state == 'chua_xep' and rec.days_since_absent >= 3
+            if rec.absent_date and rec.state == 'chua_xep':
+                rec.is_urgent = (today - rec.absent_date).days >= 3
+            else:
+                rec.is_urgent = False
 
     # ── Nút bấm hành động ───────────────────────
     def action_xep_lich(self):
-        self.state = 'da_xep'
+        for rec in self:
+            rec.state = 'da_xep'
 
     def action_hoan_thanh(self):
-        self.state = 'hoan_thanh'
+        for rec in self:
+            rec.state = 'hoan_thanh'
 
     def action_huy(self):
-        self.state = 'huy'
+        for rec in self:
+            rec.state = 'huy'
 
     @api.model
     def create(self, vals):

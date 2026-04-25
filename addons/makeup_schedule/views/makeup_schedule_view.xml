@@ -13,17 +13,21 @@
                         type="object"
                         class="btn-primary"
                         invisible="state != 'chua_xep'"/>
+
                     <button name="action_hoan_thanh"
                         string="Đã học bù xong"
                         type="object"
                         class="btn-success"
                         invisible="state != 'da_xep'"/>
+
                     <button name="action_huy"
                         string="Huỷ"
                         type="object"
                         class="btn-danger"
                         invisible="state in ['hoan_thanh', 'huy']"/>
-                    <field name="state" widget="statusbar"
+
+                    <field name="state"
+                        widget="statusbar"
                         statusbar_visible="chua_xep,da_xep,hoan_thanh,huy"/>
                 </header>
 
@@ -79,17 +83,20 @@
                 decoration-warning="state == 'da_xep'"
                 decoration-success="state == 'hoan_thanh'"
                 decoration-muted="state == 'huy'">
+
                 <field name="student_id"/>
                 <field name="class_name"/>
                 <field name="subject"/>
                 <field name="absent_date"/>
                 <field name="makeup_date"/>
                 <field name="makeup_time"/>
-                <field name="days_since_absent"/>
+
                 <field name="state" widget="badge"
                     decoration-danger="state == 'chua_xep'"
                     decoration-warning="state == 'da_xep'"
-                    decoration-success="state == 'hoan_thanh'"/>
+                    decoration-success="state == 'hoan_thanh'"
+                    decoration-muted="state == 'huy'"/>
+
                 <field name="is_urgent" invisible="1"/>
 
                 <button name="action_xep_lich"
@@ -116,6 +123,7 @@
                 <field name="student_id" string="Học sinh"/>
                 <field name="class_name" string="Lớp"/>
                 <field name="subject" string="Môn học"/>
+
                 <separator/>
 
                 <filter name="chua_xep"
@@ -134,9 +142,17 @@
                     string="Đã học bù"
                     domain="[('state','=','hoan_thanh')]"/>
 
+                <filter name="huy"
+                    string="Đã huỷ"
+                    domain="[('state','=','huy')]"/>
+
                 <separator/>
 
                 <group expand="0" string="Nhóm theo">
+                    <filter name="group_student"
+                        string="Học sinh"
+                        context="{'group_by': 'student_id'}"/>
+
                     <filter name="group_class"
                         string="Lớp"
                         context="{'group_by': 'class_name'}"/>
@@ -184,4 +200,5 @@
         parent="menu_makeup_root"
         action="makeup_schedule_action"
         sequence="2"/>
+
 </odoo>
