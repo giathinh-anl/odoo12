@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- FORM VIEW -->
+    <record id="education_payment_form" model="ir.ui.view">
+        <field name="name">education.payment.form</field>
+        <field name="model">education.payment</field>
+        <field name="arch" type="xml">
+            <form string="Thanh Toán Học Phí">
+                <header>
+                    <button name="action_confirm"
+                        string="Xác nhận"
+                        type="object"
+                        class="btn-primary"
+                        invisible="state != 'draft'"/>
+
+                    <button name="action_register_payment"
+                        string="Ghi nhận thanh toán"
+                        type="object"
+                        class="btn-success"
+                        invisible="state not in ['unpaid', 'partial']"/>
+
+                    <button name="action_set_draft"
+                        string="Đưa về nháp"
+                        type="object"
+                        invisible="state not in ['unpaid', 'partial', 'paid', 'cancel']"/>
+
+                    <button name="action_cancel"
+                        string="Huỷ"
+                        type="object"
+                        class="btn-danger"
+                        invisible="state == 'cancel'"/>
+
+                    <field name="state"
+                        widget="statusbar"
+                        statusbar_visible="draft,unpaid,partial,paid,cancel"/>
+                </header>
+
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group string="Thông tin học sinh">
+                            <field name="student_id"
+                                string="Học sinh"
+                                placeholder="Chọn học sinh từ Liên hệ"
+                                options="{'no_create': False, 'no_create_edit': False, 'no_open': False}"/>
+
+                            <field name="student_phone" readonly="1"/>
+                            <field name="student_email" readonly="1"/>
+                            <field name="class_name" placeholder="Nhập lớp"/>
+                            <field name="course_name"/>
+                        </group>
+
+                        <group string="Thông tin thanh toán">
+                            <field name="payment_date"/>
+                            <field name="due_date"/>
+                            <field name="payment_method"/>
+                        </group>
+                    </group>
+
+                    <group string="Số tiền">
+                        <field name="total_amount"/>
+                        <field name="paid_amount"/>
+                        <field name="remaining_amount" readonly="1"/>
+                    </group>
+
+                    <group string="Ghi chú">
+                        <field name="note"
+                            nolabel="1"
+                            placeholder="Nhập ghi chú nếu có..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- LIST VIEW -->
+    <record id="education_payment_tree" model="ir.ui.view">
+        <field name="name">education.payment.tree</field>
+        <field name="model">education.payment</field>
+        <field name="arch" type="xml">
+            <tree string="Danh sách thanh toán học phí"
+                decoration-danger="state == 'unpaid'"
+                decoration-warning="state == 'partial'"
+                decoration-success="state == 'paid'"
+                decoration-muted="state == 'cancel'">
+
+                <field name="name"/>
+                <field name="student_id"/>
+                <field name="class_name"/>
+                <field name="course_name"/>
+                <field name="payment_date"/>
+                <field name="due_date"/>
+                <field name="total_amount"/>
+                <field name="paid_amount"/>
+                <field name="remaining_amount"/>
+                <field name="payment_method"/>
+
+                <field name="state"
+                    widget="badge"
+                    decoration-danger="state == 'unpaid'"
+                    decoration-warning="state == 'partial'"
+                    decoration-success="state == 'paid'"
+                    decoration-muted="state == 'cancel'"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- SEARCH VIEW -->
+    <record id="education_payment_search" model="ir.ui.view">
+        <field name="name">education.payment.search</field>
+        <field name="model">education.payment</field>
+        <field name="arch" type="xml">
+            <search string="Tìm kiếm thanh toán học phí">
+                <field name="name"/>
+                <field name="student_id" string="Học sinh"/>
+                <field name="class_name" string="Lớp"/>
+                <field name="course_name" string="Môn học"/>
+
+                <separator/>
+
+                <filter name="draft"
+                    string="Nháp"
+                    domain="[('state','=','draft')]"/>
+
+                <filter name="unpaid"
+                    string="Chưa thanh toán"
+                    domain="[('state','=','unpaid')]"/>
+
+                <filter name="partial"
+                    string="Thanh toán một phần"
+                    domain="[('state','=','partial')]"/>
+
+                <filter name="paid"
+                    string="Đã thanh toán"
+                    domain="[('state','=','paid')]"/>
+
+                <filter name="cancel"
+                    string="Đã huỷ"
+                    domain="[('state','=','cancel')]"/>
+
+                <separator/>
+
+                <group expand="0" string="Nhóm theo">
+                    <filter name="group_student"
+                        string="Học sinh"
+                        context="{'group_by': 'student_id'}"/>
+
+                    <filter name="group_class"
+                        string="Lớp"
+                        context="{'group_by': 'class_name'}"/>
+
+                    <filter name="group_course"
+                        string="Môn học"
+                        context="{'group_by': 'course_name'}"/>
+
+                    <filter name="group_method"
+                        string="Phương thức"
+                        context="{'group_by': 'payment_method'}"/>
+
+                    <filter name="group_state"
+                        string="Trạng thái"
+                        context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ACTION -->
+    <record id="education_payment_action" model="ir.actions.act_window">
+        <field name="name">Thanh Toán Học Phí</field>
+        <field name="res_model">education.payment</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="education_payment_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Chưa có phiếu thanh toán học phí nào!
+            </p>
+            <p>Nhấn Tạo mới để ghi nhận học phí của học sinh.</p>
+        </field>
+    </record>
+
+    <!-- MENU -->
+    <menuitem id="menu_education_payment_root"
+        name="Thanh Toán Học Phí"
+        sequence="16"/>
+
+    <menuitem id="menu_education_payment_all"
+        name="Danh sách thanh toán"
+        parent="menu_education_payment_root"
+        action="education_payment_action"
+        sequence="1"/>
+
+</odoo>
