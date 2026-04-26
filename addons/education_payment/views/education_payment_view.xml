@@ -20,6 +20,18 @@
                         class="btn-success"
                         invisible="state not in ['unpaid', 'partial']"/>
 
+                    <button name="action_create_invoice"
+                        string="Tạo hóa đơn"
+                        type="object"
+                        class="btn-primary"
+                        invisible="invoice_id != False"/>
+
+                    <button name="action_open_invoice"
+                        string="Mở hóa đơn"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="invoice_id == False"/>
+
                     <button name="action_set_draft"
                         string="Đưa về nháp"
                         type="object"
@@ -69,6 +81,28 @@
                         <field name="remaining_amount" readonly="1"/>
                     </group>
 
+                    <group string="Liên kết hóa đơn">
+                        <field name="invoice_id" readonly="1"/>
+                        <field name="invoice_state" readonly="1"/>
+                        <field name="invoice_payment_state" readonly="1"/>
+                    </group>
+
+                    <group string="Thông tin chuyển khoản"
+                        invisible="payment_method != 'bank'">
+                        <group>
+                            <field name="bank_code"/>
+                            <field name="bank_account_no"/>
+                            <field name="bank_account_name"/>
+                            <field name="transfer_content" readonly="1"/>
+                            <field name="qr_payment_url" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="qr_payment_html"
+                                nolabel="1"
+                                readonly="1"/>
+                        </group>
+                    </group>
+
                     <group string="Ghi chú">
                         <field name="note"
                             nolabel="1"
@@ -100,6 +134,7 @@
                 <field name="paid_amount"/>
                 <field name="remaining_amount"/>
                 <field name="payment_method"/>
+                <field name="invoice_id"/>
 
                 <field name="state"
                     widget="badge"
@@ -121,6 +156,7 @@
                 <field name="student_id" string="Học sinh"/>
                 <field name="class_name" string="Lớp"/>
                 <field name="course_name" string="Môn học"/>
+                <field name="invoice_id" string="Hóa đơn"/>
 
                 <separator/>
 
@@ -139,6 +175,14 @@
                 <filter name="paid"
                     string="Đã thanh toán"
                     domain="[('state','=','paid')]"/>
+
+                <filter name="has_invoice"
+                    string="Đã có hóa đơn"
+                    domain="[('invoice_id','!=',False)]"/>
+
+                <filter name="no_invoice"
+                    string="Chưa có hóa đơn"
+                    domain="[('invoice_id','=',False)]"/>
 
                 <filter name="cancel"
                     string="Đã huỷ"

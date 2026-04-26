@@ -1,17 +1,18 @@
 {
     'name': 'Quản Lý Thanh Toán Học Phí',
     'version': '1.0',
-    'summary': 'Quản lý thanh toán học phí cho trung tâm giáo dục',
+    'summary': 'Quản lý thanh toán học phí và liên kết hóa đơn',
     'description': '''
         Module Quản Lý Thanh Toán Học Phí:
         - Ghi nhận học phí của từng học sinh
-        - Theo dõi số tiền phải đóng, đã đóng và còn nợ
-        - Quản lý trạng thái thanh toán
-        - Liên kết học sinh với Liên hệ trong Odoo
+        - Liên kết với hóa đơn Odoo
+        - Tạo hóa đơn từ phiếu thanh toán
+        - Tạo mã QR chuyển khoản VietQR
+        - Theo dõi trạng thái thanh toán
     ''',
     'author': 'Nhóm 5 - UTH',
     'category': 'Education',
-    'depends': ['base', 'contacts'],
+    'depends': ['base', 'contacts', 'account'],
     'data': [
         'security/ir.model.access.csv',
         'views/education_payment_view.xml',
