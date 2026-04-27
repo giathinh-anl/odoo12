@@ -9,7 +9,7 @@ class EducationPayment(models.Model):
     _order = 'payment_date desc, id desc'
 
     name = fields.Char(
-        string='Mã phiếu',
+        string='Mã phiếu thanh toán',
         required=True,
         copy=False,
         readonly=True,
@@ -19,8 +19,7 @@ class EducationPayment(models.Model):
     student_id = fields.Many2one(
         'res.partner',
         string='Học sinh',
-        required=True,
-        domain="[('is_company', '=', False)]"
+        required=True
     )
 
     student_phone = fields.Char(
@@ -37,6 +36,13 @@ class EducationPayment(models.Model):
         readonly=True
     )
 
+    student_tags = fields.Many2many(
+        'res.partner.category',
+        string='Nhãn liên hệ',
+        related='student_id.category_id',
+        readonly=True
+    )
+
     class_name = fields.Char(
         string='Lớp'
     )
@@ -47,7 +53,7 @@ class EducationPayment(models.Model):
         ('tieng_viet', 'Tiếng Việt'),
         ('tieng_anh', 'Tiếng Anh'),
         ('khac', 'Khác'),
-    ], string='Môn học / Khoá học', required=True)
+    ], string='Môn học / Khóa học', required=True)
 
     payment_date = fields.Date(
         string='Ngày ghi nhận',
@@ -104,6 +110,13 @@ class EducationPayment(models.Model):
         copy=False
     )
 
+    invoice_name = fields.Char(
+        string='Số hóa đơn',
+        related='invoice_id.name',
+        store=True,
+        readonly=True
+    )
+
     invoice_state = fields.Selection(
         related='invoice_id.state',
         string='Trạng thái hóa đơn',
@@ -116,11 +129,10 @@ class EducationPayment(models.Model):
         readonly=True
     )
 
-    # ── Thông tin QR chuyển khoản ───────────────
+    # ── QR chuyển khoản ─────────────────────────
     bank_code = fields.Char(
         string='Mã ngân hàng',
-        default='mbbank',
-        help='Ví dụ: mbbank, vietcombank, acb, bidv, vietinbank'
+        default='mbbank'
     )
 
     bank_account_no = fields.Char(
@@ -150,6 +162,16 @@ class EducationPayment(models.Model):
         compute='_compute_qr_payment_html',
         sanitize=False
     )
+
+    @api.onchange('student_id')
+    def _onchange_student_id(self):
+        for rec in self:
+            if rec.student_id and rec.student_id.category_id:
+                class_tags = rec.student_id.category_id.filtered(
+                    lambda tag: tag.name and tag.name.lower().startswith('lớp')
+                )
+                if class_tags:
+                    rec.class_name = class_tags[0].name
 
     @api.depends('total_amount', 'paid_amount')
     def _compute_remaining_amount(self):
@@ -273,25 +295,46 @@ class EducationPayment(models.Model):
             if not rec.student_id:
                 raise ValidationError('Vui lòng chọn học sinh trước khi tạo hóa đơn.')
 
+            if not rec.course_name:
+                raise ValidationError('Vui lòng chọn môn học / khóa học.')
+
             if rec.total_amount <= 0:
                 raise ValidationError('Vui lòng nhập tổng học phí trước khi tạo hóa đơn.')
 
-            invoice_vals = {
+            course_label = dict(rec._fields['course_name'].selection).get(
+                rec.course_name,
+                rec.course_name
+            )
+
+            line_name = f'Học phí {course_label}'
+            if rec.class_name:
+                line_name += f' - {rec.class_name}'
+
+            invoice = self.env['account.move'].create({
                 'move_type': 'out_invoice',
                 'partner_id': rec.student_id.id,
                 'invoice_date': rec.payment_date,
                 'invoice_date_due': rec.due_date,
+                'education_payment_id': rec.id,
+                'invoice_origin': rec.name,
+                'ref': rec.name,
                 'invoice_line_ids': [(0, 0, {
-                    'name': f'Học phí - {dict(rec._fields["course_name"].selection).get(rec.course_name, rec.course_name)}',
+                    'name': line_name,
                     'quantity': 1,
                     'price_unit': rec.total_amount,
                 })],
-            }
+            })
 
-            invoice = self.env['account.move'].create(invoice_vals)
             rec.invoice_id = invoice.id
 
-        return True
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Hóa đơn vừa tạo',
+            'res_model': 'account.move',
+            'view_mode': 'form',
+            'res_id': invoice.id,
+            'target': 'current',
+        }
 
     def action_open_invoice(self):
         self.ensure_one()
@@ -301,9 +344,35 @@ class EducationPayment(models.Model):
 
         return {
             'type': 'ir.actions.act_window',
-            'name': 'Hóa đơn',
+            'name': 'Hóa đơn liên kết',
             'res_model': 'account.move',
             'view_mode': 'form',
             'res_id': self.invoice_id.id,
+            'target': 'current',
+        }
+
+
+class AccountMove(models.Model):
+    _inherit = 'account.move'
+
+    education_payment_id = fields.Many2one(
+        'education.payment',
+        string='Phiếu thanh toán học phí',
+        readonly=True,
+        copy=False
+    )
+
+    def action_open_education_payment(self):
+        self.ensure_one()
+
+        if not self.education_payment_id:
+            raise ValidationError('Hóa đơn này chưa liên kết với phiếu thanh toán học phí.')
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Phiếu thanh toán học phí',
+            'res_model': 'education.payment',
+            'view_mode': 'form',
+            'res_id': self.education_payment_id.id,
             'target': 'current',
         }
