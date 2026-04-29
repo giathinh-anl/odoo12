@@ -7,30 +7,26 @@ class MakeupSchedule(models.Model):
     _description = 'Lịch Học Bù'
     _order = 'absent_date desc'
 
+    # ── Liên kết học sinh từ Liên hệ ─────────────
     student_id = fields.Many2one(
         'res.partner',
         string='Tên học sinh',
-        required=True,
-        domain="[('is_company', '=', False)]"
+        required=True
     )
 
     student_name = fields.Char(
         string='Tên học sinh',
         related='student_id.name',
-        store=True
+        store=True,
+        readonly=True
     )
 
-    class_name = fields.Char(
-        string='Lớp',
-        required=True
+    student_tags = fields.Many2many(
+        'res.partner.category',
+        string='Nhãn liên hệ',
+        related='student_id.category_id',
+        readonly=True
     )
-
-    subject = fields.Selection([
-        ('toan', 'Toán'),
-        ('ngu_van', 'Ngữ văn'),
-        ('tieng_viet', 'Tiếng Việt'),
-        ('tieng_anh', 'Tiếng Anh'),
-    ], string='Môn học', required=True)
 
     phone = fields.Char(
         string='Số điện thoại',
@@ -46,6 +42,19 @@ class MakeupSchedule(models.Model):
         readonly=True
     )
 
+    class_name = fields.Char(
+        string='Lớp',
+        required=True
+    )
+
+    subject = fields.Selection([
+        ('toan', 'Toán'),
+        ('ngu_van', 'Ngữ văn'),
+        ('tieng_viet', 'Tiếng Việt'),
+        ('tieng_anh', 'Tiếng Anh'),
+    ], string='Môn học', required=True)
+
+    # ── Thông tin vắng ──────────────────────────
     absent_date = fields.Date(
         string='Ngày vắng',
         required=True,
@@ -56,6 +65,7 @@ class MakeupSchedule(models.Model):
         string='Lý do vắng'
     )
 
+    # ── Lịch học bù ─────────────────────────────
     makeup_date = fields.Date(
         string='Ngày học bù'
     )
@@ -79,6 +89,7 @@ class MakeupSchedule(models.Model):
         string='Ghi chú'
     )
 
+    # ── Tính tự động ────────────────────────────
     days_since_absent = fields.Integer(
         string='Số ngày chưa bù',
         compute='_compute_days_since_absent',
@@ -90,6 +101,20 @@ class MakeupSchedule(models.Model):
         compute='_compute_is_urgent',
         store=True
     )
+
+    @api.onchange('student_id')
+    def _onchange_student_id(self):
+        """
+        Khi chọn học sinh từ Liên hệ:
+        - tự lấy lớp từ tag nếu tag có dạng 'Lớp 1', 'Lớp 8',...
+        """
+        for rec in self:
+            if rec.student_id and rec.student_id.category_id:
+                class_tags = rec.student_id.category_id.filtered(
+                    lambda tag: tag.name and tag.name.lower().startswith('lớp')
+                )
+                if class_tags:
+                    rec.class_name = class_tags[0].name
 
     @api.depends('absent_date', 'state')
     def _compute_days_since_absent(self):
@@ -109,6 +134,7 @@ class MakeupSchedule(models.Model):
             else:
                 rec.is_urgent = False
 
+    # ── Nút bấm hành động ───────────────────────
     def action_xep_lich(self):
         for rec in self:
             rec.state = 'da_xep'
