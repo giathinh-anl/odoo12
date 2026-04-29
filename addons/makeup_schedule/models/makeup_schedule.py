@@ -106,9 +106,12 @@ class MakeupSchedule(models.Model):
     def _onchange_student_id(self):
         """
         Khi chọn học sinh từ Liên hệ:
-        - tự lấy lớp từ tag nếu tag có dạng 'Lớp 1', 'Lớp 8',...
+        - Tự lấy lớp từ tag nếu liên hệ có tag dạng 'Lớp 1', 'Lớp 8',...
+        - Email và số điện thoại tự lấy bằng related field.
         """
         for rec in self:
+            rec.class_name = False
+
             if rec.student_id and rec.student_id.category_id:
                 class_tags = rec.student_id.category_id.filtered(
                     lambda tag: tag.name and tag.name.lower().startswith('lớp')

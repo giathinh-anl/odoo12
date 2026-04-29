@@ -37,16 +37,19 @@
                             <field name="student_id"
                                 string="Tên học sinh"
                                 placeholder="Tìm học sinh đã có trong Liên hệ"
-                                options="{'no_create': True, 'no_create_edit': True, 'no_open': False}"/>
+                                options="{'no_create': True, 'no_quick_create': True, 'no_create_edit': True, 'no_open': False}"/>
 
                             <field name="student_tags"
+                                string="Nhãn liên hệ"
                                 widget="many2many_tags"
                                 readonly="1"/>
 
                             <field name="class_name"
+                                string="Lớp"
                                 placeholder="Tự lấy từ tag Lớp nếu có"/>
 
-                            <field name="subject"/>
+                            <field name="subject"
+                                string="Môn học"/>
 
                             <field name="phone"
                                 string="Số điện thoại"
@@ -58,23 +61,30 @@
                         </group>
 
                         <group string="Thông tin vắng">
-                            <field name="absent_date"/>
+                            <field name="absent_date"
+                                string="Ngày vắng"/>
 
                             <field name="absent_reason"
+                                string="Lý do vắng"
                                 placeholder="Nhập lý do vắng"/>
 
                             <field name="is_urgent"
+                                string="Cần xếp gấp"
                                 widget="boolean_toggle"
                                 readonly="1"/>
 
                             <field name="days_since_absent"
+                                string="Số ngày chưa bù"
                                 readonly="1"/>
                         </group>
                     </group>
 
                     <group string="Lịch học bù">
-                        <field name="makeup_date"/>
+                        <field name="makeup_date"
+                            string="Ngày học bù"/>
+
                         <field name="makeup_time"
+                            string="Giờ học bù"
                             placeholder="VD: 14:00 - 15:30"/>
                     </group>
 
@@ -100,13 +110,14 @@
                 decoration-muted="state == 'huy'">
 
                 <field name="student_id" string="Tên học sinh"/>
-                <field name="class_name"/>
-                <field name="subject"/>
-                <field name="absent_date"/>
-                <field name="makeup_date"/>
-                <field name="makeup_time"/>
+                <field name="class_name" string="Lớp"/>
+                <field name="subject" string="Môn học"/>
+                <field name="absent_date" string="Ngày vắng"/>
+                <field name="makeup_date" string="Ngày học bù"/>
+                <field name="makeup_time" string="Giờ học bù"/>
 
                 <field name="state"
+                    string="Trạng thái"
                     widget="badge"
                     decoration-danger="state == 'chua_xep'"
                     decoration-warning="state == 'da_xep'"
