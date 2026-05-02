@@ -8,6 +8,7 @@
         - Liên kết với Liên hệ
         - Liên kết với Sản phẩm trong Bán hàng
         - Tự lấy học phí theo sản phẩm đã chọn
+        - Tự cộng tổng học phí
         - Tạo hóa đơn từ phiếu thanh toán
         - Tạo mã QR chuyển khoản VietQR
     ''',
