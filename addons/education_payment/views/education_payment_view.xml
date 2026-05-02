@@ -76,21 +76,23 @@
                         </group>
                     </group>
 
-                    <group string="Chi tiết học phí">
-                        <field name="payment_line_ids" nolabel="1">
-                            <tree editable="bottom">
-                                <field name="product_id"
-                                    string="Sản phẩm / Môn học"
-                                    domain="[('sale_ok','=',True), ('name','ilike', parent.class_name or '')]"
-                                    options="{'no_create': True, 'no_create_edit': True, 'no_open': False}"/>
+                    <notebook>
+                        <page string="Chi tiết học phí">
+                            <field name="payment_line_ids" nolabel="1">
+                                <tree editable="bottom">
+                                    <field name="product_id"
+                                        string="Sản phẩm / Môn học"
+                                        domain="[('sale_ok','=',True), ('name','ilike', parent.class_name or '')]"
+                                        options="{'no_create': True, 'no_create_edit': True, 'no_open': False}"/>
 
-                                <field name="name" string="Diễn giải"/>
-                                <field name="quantity" string="Số lượng"/>
-                                <field name="price_unit" string="Đơn giá"/>
-                                <field name="subtotal" string="Thành tiền" readonly="1"/>
-                            </tree>
-                        </field>
-                    </group>
+                                    <field name="name" string="Diễn giải"/>
+                                    <field name="quantity" string="Số lượng"/>
+                                    <field name="price_unit" string="Đơn giá"/>
+                                    <field name="subtotal" string="Thành tiền" readonly="1"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
 
                     <group string="Theo dõi học phí">
                         <field name="total_amount" readonly="1"/>
