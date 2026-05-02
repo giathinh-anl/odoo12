@@ -47,13 +47,14 @@ class EducationPayment(models.Model):
         string='Lớp'
     )
 
-    course_name = fields.Selection([
-        ('toan', 'Toán'),
-        ('ngu_van', 'Ngữ văn'),
-        ('tieng_viet', 'Tiếng Việt'),
-        ('tieng_anh', 'Tiếng Anh'),
-        ('khac', 'Khác'),
-    ], string='Môn học / Khóa học', required=True)
+    # Chọn nhiều môn học, dùng chung danh mục môn học của module Lịch Học Bù
+    subject_ids = fields.Many2many(
+        'makeup.subject',
+        'education_payment_subject_rel',
+        'payment_id',
+        'subject_id',
+        string='Môn học / Khóa học'
+    )
 
     payment_date = fields.Date(
         string='Ngày ghi nhận',
@@ -101,7 +102,7 @@ class EducationPayment(models.Model):
         string='Ghi chú'
     )
 
-    # ── Liên kết hóa đơn Odoo ───────────────────
+    # Liên kết hóa đơn Odoo
     invoice_id = fields.Many2one(
         'account.move',
         string='Hóa đơn liên kết',
@@ -129,7 +130,7 @@ class EducationPayment(models.Model):
         readonly=True
     )
 
-    # ── QR chuyển khoản ─────────────────────────
+    # QR chuyển khoản
     bank_code = fields.Char(
         string='Mã ngân hàng',
         default='mbbank'
@@ -166,6 +167,8 @@ class EducationPayment(models.Model):
     @api.onchange('student_id')
     def _onchange_student_id(self):
         for rec in self:
+            rec.class_name = False
+
             if rec.student_id and rec.student_id.category_id:
                 class_tags = rec.student_id.category_id.filtered(
                     lambda tag: tag.name and tag.name.lower().startswith('lớp')
@@ -295,18 +298,15 @@ class EducationPayment(models.Model):
             if not rec.student_id:
                 raise ValidationError('Vui lòng chọn học sinh trước khi tạo hóa đơn.')
 
-            if not rec.course_name:
-                raise ValidationError('Vui lòng chọn môn học / khóa học.')
+            if not rec.subject_ids:
+                raise ValidationError('Vui lòng chọn ít nhất một môn học / khóa học.')
 
             if rec.total_amount <= 0:
                 raise ValidationError('Vui lòng nhập tổng học phí trước khi tạo hóa đơn.')
 
-            course_label = dict(rec._fields['course_name'].selection).get(
-                rec.course_name,
-                rec.course_name
-            )
+            subject_names = ', '.join(rec.subject_ids.mapped('name'))
 
-            line_name = f'Học phí {course_label}'
+            line_name = f'Học phí - {subject_names}'
             if rec.class_name:
                 line_name += f' - {rec.class_name}'
 

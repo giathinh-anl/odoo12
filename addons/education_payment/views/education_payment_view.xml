@@ -67,7 +67,11 @@
                             <field name="student_email" readonly="1"/>
                             <field name="student_tags" widget="many2many_tags" readonly="1"/>
                             <field name="class_name" placeholder="Tự lấy từ tag Lớp nếu có"/>
-                            <field name="course_name"/>
+
+                            <field name="subject_ids"
+                                string="Môn học / Khóa học"
+                                widget="many2many_tags"
+                                options="{'no_create_edit': True}"/>
                         </group>
 
                         <group string="Thông tin phiếu">
@@ -128,7 +132,7 @@
                 <field name="name"/>
                 <field name="student_id"/>
                 <field name="class_name"/>
-                <field name="course_name"/>
+                <field name="subject_ids" widget="many2many_tags"/>
                 <field name="payment_date"/>
                 <field name="due_date"/>
                 <field name="total_amount"/>
@@ -156,7 +160,7 @@
                 <field name="name"/>
                 <field name="student_id" string="Học sinh"/>
                 <field name="class_name" string="Lớp"/>
-                <field name="course_name" string="Môn học"/>
+                <field name="subject_ids" string="Môn học"/>
                 <field name="invoice_id" string="Hóa đơn"/>
 
                 <separator/>
@@ -192,10 +196,6 @@
                         string="Lớp"
                         context="{'group_by': 'class_name'}"/>
 
-                    <filter name="group_course"
-                        string="Môn học"
-                        context="{'group_by': 'course_name'}"/>
-
                     <filter name="group_method"
                         string="Phương thức"
                         context="{'group_by': 'payment_method'}"/>
@@ -222,7 +222,7 @@
         </field>
     </record>
 
-    <!-- INHERIT INVOICE FORM: HIỆN LIÊN KẾT PAYMENT TRÊN HÓA ĐƠN -->
+    <!-- INHERIT INVOICE FORM -->
     <record id="account_move_form_inherit_education_payment" model="ir.ui.view">
         <field name="name">account.move.form.inherit.education.payment</field>
         <field name="model">account.move</field>

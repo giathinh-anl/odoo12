@@ -9,10 +9,11 @@
         - Tạo hóa đơn từ phiếu thanh toán
         - Tạo mã QR chuyển khoản VietQR
         - Theo dõi trạng thái thanh toán
+        - Chọn nhiều môn học cho một phiếu thanh toán
     ''',
     'author': 'Nhóm 5 - UTH',
     'category': 'Education',
-    'depends': ['base', 'contacts', 'account'],
+    'depends': ['base', 'contacts', 'account', 'makeup_schedule'],
     'data': [
         'security/ir.model.access.csv',
         'views/education_payment_view.xml',
