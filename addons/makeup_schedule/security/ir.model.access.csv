@@ -1,2 +1,3 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_makeup_schedule,makeup.schedule,model_makeup_schedule,,1,1,1,1
+access_makeup_schedule_user,makeup.schedule.user,model_makeup_schedule,base.group_user,1,1,1,1
+access_makeup_subject_user,makeup.subject.user,model_makeup_subject,base.group_user,1,1,1,1
