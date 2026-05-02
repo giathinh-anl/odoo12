@@ -14,6 +14,7 @@
     'depends': ['base', 'contacts', 'calendar'],
     'data': [
         'security/ir.model.access.csv',
+        'data/makeup_subject_data.xml',
         'views/makeup_schedule_view.xml',
     ],
     'installable': True,

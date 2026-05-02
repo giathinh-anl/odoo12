@@ -2,6 +2,14 @@ from odoo import models, fields, api
 from datetime import timedelta
 
 
+class MakeupSubject(models.Model):
+    _name = 'makeup.subject'
+    _description = 'Môn học'
+    _order = 'name asc'
+
+    name = fields.Char(string='Tên môn học', required=True)
+
+
 class MakeupSchedule(models.Model):
     _name = 'makeup.schedule'
     _description = 'Lịch Học Bù'
@@ -38,12 +46,14 @@ class MakeupSchedule(models.Model):
         string='Lớp'
     )
 
-    subject = fields.Selection([
-        ('toan', 'Toán'),
-        ('ngu_van', 'Ngữ văn'),
-        ('tieng_viet', 'Tiếng Việt'),
-        ('tieng_anh', 'Tiếng Anh'),
-    ], string='Môn học', required=True)
+    # Đổi từ Selection -> Many2many
+    subject_ids = fields.Many2many(
+        'makeup.subject',
+        'makeup_schedule_subject_rel',
+        'schedule_id',
+        'subject_id',
+        string='Môn học'
+    )
 
     absent_date = fields.Date(
         string='Ngày vắng',

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="makeup_subject_toan" model="makeup.subject">
+        <field name="name">Toán</field>
+    </record>
+
+    <record id="makeup_subject_ngu_van" model="makeup.subject">
+        <field name="name">Ngữ văn</field>
+    </record>
+
+    <record id="makeup_subject_tieng_viet" model="makeup.subject">
+        <field name="name">Tiếng Việt</field>
+    </record>
+
+    <record id="makeup_subject_tieng_anh" model="makeup.subject">
+        <field name="name">Tiếng Anh</field>
+    </record>
+</odoo>

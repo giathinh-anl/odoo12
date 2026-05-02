@@ -57,7 +57,10 @@
                                 string="Lớp"
                                 placeholder="Tự lấy từ tag Lớp nếu có"/>
 
-                            <field name="subject" string="Môn học"/>
+                            <field name="subject_ids"
+                                string="Môn học"
+                                widget="many2many_tags"
+                                options="{'no_create_edit': True}"/>
                         </group>
 
                         <group string="Thông tin vắng">
@@ -105,7 +108,7 @@
 
                 <field name="student_id" string="Học sinh"/>
                 <field name="class_name" string="Lớp"/>
-                <field name="subject" string="Môn học"/>
+                <field name="subject_ids" string="Môn học" widget="many2many_tags"/>
                 <field name="absent_date" string="Ngày vắng"/>
                 <field name="makeup_date" string="Ngày học bù"/>
                 <field name="makeup_time" string="Giờ học bù"/>
@@ -143,7 +146,7 @@
             <search string="Tìm kiếm lịch học bù">
                 <field name="student_id" string="Học sinh"/>
                 <field name="class_name" string="Lớp"/>
-                <field name="subject" string="Môn học"/>
+                <field name="subject_ids" string="Môn học"/>
 
                 <separator/>
 
@@ -178,15 +181,37 @@
                         string="Lớp"
                         context="{'group_by': 'class_name'}"/>
 
-                    <filter name="group_subject"
-                        string="Môn"
-                        context="{'group_by': 'subject'}"/>
-
                     <filter name="group_state"
                         string="Trạng thái"
                         context="{'group_by': 'state'}"/>
                 </group>
             </search>
+        </field>
+    </record>
+
+    <!-- SUBJECT TREE VIEW -->
+    <record id="makeup_subject_tree" model="ir.ui.view">
+        <field name="name">makeup.subject.tree</field>
+        <field name="model">makeup.subject</field>
+        <field name="arch" type="xml">
+            <tree string="Danh mục môn học" editable="bottom">
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- SUBJECT FORM VIEW -->
+    <record id="makeup_subject_form" model="ir.ui.view">
+        <field name="name">makeup.subject.form</field>
+        <field name="model">makeup.subject</field>
+        <field name="arch" type="xml">
+            <form string="Môn học">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                    </group>
+                </sheet>
+            </form>
         </field>
     </record>
 
@@ -205,6 +230,12 @@
         </field>
     </record>
 
+    <record id="makeup_subject_action" model="ir.actions.act_window">
+        <field name="name">Danh mục môn học</field>
+        <field name="res_model">makeup.subject</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
     <!-- MENU -->
     <menuitem id="menu_makeup_root"
         name="Lịch Học Bù"
@@ -221,5 +252,11 @@
         parent="menu_makeup_root"
         action="makeup_schedule_action"
         sequence="2"/>
+
+    <menuitem id="menu_makeup_subject"
+        name="Danh mục môn học"
+        parent="menu_makeup_root"
+        action="makeup_subject_action"
+        sequence="3"/>
 
 </odoo>
