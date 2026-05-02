@@ -20,6 +20,12 @@
                         class="btn-success"
                         invisible="state != 'da_xep'"/>
 
+                    <button name="action_open_student_contact"
+                        string="Mở liên hệ"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="not student_id"/>
+
                     <button name="action_huy"
                         string="Huỷ"
                         type="object"
@@ -35,44 +41,34 @@
                     <group>
                         <group string="Thông tin học sinh">
                             <field name="student_id"
-                                string="Tên học sinh"
+                                string="Học sinh"
                                 placeholder="Tìm học sinh đã có trong Liên hệ"
+                                domain="[]"
+                                context="{'show_address': 1, 'show_email': 1, 'create': False}"
+                                can_create="false"
+                                can_write="false"
                                 options="{'no_create': True, 'no_quick_create': True, 'no_create_edit': True, 'no_open': False}"/>
 
-                            <field name="student_tags"
-                                string="Nhãn liên hệ"
-                                widget="many2many_tags"
-                                readonly="1"/>
+                            <field name="student_phone" readonly="1"/>
+                            <field name="student_email" readonly="1"/>
+                            <field name="student_tags" widget="many2many_tags" readonly="1"/>
 
                             <field name="class_name"
                                 string="Lớp"
                                 placeholder="Tự lấy từ tag Lớp nếu có"/>
 
-                            <field name="subject"
-                                string="Môn học"/>
-
-                            <field name="phone"
-                                string="Số điện thoại"
-                                readonly="1"/>
-
-                            <field name="email"
-                                string="Email"
-                                readonly="1"/>
+                            <field name="subject" string="Môn học"/>
                         </group>
 
                         <group string="Thông tin vắng">
-                            <field name="absent_date"
-                                string="Ngày vắng"/>
-
+                            <field name="absent_date" string="Ngày vắng"/>
                             <field name="absent_reason"
                                 string="Lý do vắng"
                                 placeholder="Nhập lý do vắng"/>
-
                             <field name="is_urgent"
                                 string="Cần xếp gấp"
                                 widget="boolean_toggle"
                                 readonly="1"/>
-
                             <field name="days_since_absent"
                                 string="Số ngày chưa bù"
                                 readonly="1"/>
@@ -80,9 +76,7 @@
                     </group>
 
                     <group string="Lịch học bù">
-                        <field name="makeup_date"
-                            string="Ngày học bù"/>
-
+                        <field name="makeup_date" string="Ngày học bù"/>
                         <field name="makeup_time"
                             string="Giờ học bù"
                             placeholder="VD: 14:00 - 15:30"/>
@@ -109,7 +103,7 @@
                 decoration-success="state == 'hoan_thanh'"
                 decoration-muted="state == 'huy'">
 
-                <field name="student_id" string="Tên học sinh"/>
+                <field name="student_id" string="Học sinh"/>
                 <field name="class_name" string="Lớp"/>
                 <field name="subject" string="Môn học"/>
                 <field name="absent_date" string="Ngày vắng"/>
