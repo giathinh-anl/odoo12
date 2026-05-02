@@ -67,11 +67,6 @@
                             <field name="student_email" readonly="1"/>
                             <field name="student_tags" widget="many2many_tags" readonly="1"/>
                             <field name="class_name" placeholder="Tự lấy từ tag Lớp nếu có"/>
-
-                            <field name="subject_ids"
-                                string="Môn học / Khóa học"
-                                widget="many2many_tags"
-                                options="{'no_create_edit': True}"/>
                         </group>
 
                         <group string="Thông tin phiếu">
@@ -81,8 +76,24 @@
                         </group>
                     </group>
 
+                    <group string="Chi tiết học phí">
+                        <field name="payment_line_ids" nolabel="1">
+                            <tree editable="bottom">
+                                <field name="product_id"
+                                    string="Sản phẩm / Môn học"
+                                    domain="[('sale_ok','=',True), ('name','ilike', parent.class_name or '')]"
+                                    options="{'no_create': True, 'no_create_edit': True, 'no_open': False}"/>
+
+                                <field name="name" string="Diễn giải"/>
+                                <field name="quantity" string="Số lượng"/>
+                                <field name="price_unit" string="Đơn giá"/>
+                                <field name="subtotal" string="Thành tiền" readonly="1"/>
+                            </tree>
+                        </field>
+                    </group>
+
                     <group string="Theo dõi học phí">
-                        <field name="total_amount"/>
+                        <field name="total_amount" readonly="1"/>
                         <field name="paid_amount"/>
                         <field name="remaining_amount" readonly="1"/>
                     </group>
@@ -132,7 +143,6 @@
                 <field name="name"/>
                 <field name="student_id"/>
                 <field name="class_name"/>
-                <field name="subject_ids" widget="many2many_tags"/>
                 <field name="payment_date"/>
                 <field name="due_date"/>
                 <field name="total_amount"/>
@@ -160,7 +170,6 @@
                 <field name="name"/>
                 <field name="student_id" string="Học sinh"/>
                 <field name="class_name" string="Lớp"/>
-                <field name="subject_ids" string="Môn học"/>
                 <field name="invoice_id" string="Hóa đơn"/>
 
                 <separator/>

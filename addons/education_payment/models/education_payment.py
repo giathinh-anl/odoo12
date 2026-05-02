@@ -47,13 +47,10 @@ class EducationPayment(models.Model):
         string='Lớp'
     )
 
-    # Chọn nhiều môn học, dùng chung danh mục môn học của module Lịch Học Bù
-    subject_ids = fields.Many2many(
-        'makeup.subject',
-        'education_payment_subject_rel',
+    payment_line_ids = fields.One2many(
+        'education.payment.line',
         'payment_id',
-        'subject_id',
-        string='Môn học / Khóa học'
+        string='Chi tiết học phí'
     )
 
     payment_date = fields.Date(
@@ -68,8 +65,8 @@ class EducationPayment(models.Model):
 
     total_amount = fields.Float(
         string='Tổng học phí',
-        required=True,
-        default=0.0
+        compute='_compute_total_amount',
+        store=True
     )
 
     paid_amount = fields.Float(
@@ -102,7 +99,6 @@ class EducationPayment(models.Model):
         string='Ghi chú'
     )
 
-    # Liên kết hóa đơn Odoo
     invoice_id = fields.Many2one(
         'account.move',
         string='Hóa đơn liên kết',
@@ -130,7 +126,6 @@ class EducationPayment(models.Model):
         readonly=True
     )
 
-    # QR chuyển khoản
     bank_code = fields.Char(
         string='Mã ngân hàng',
         default='mbbank'
@@ -175,6 +170,11 @@ class EducationPayment(models.Model):
                 )
                 if class_tags:
                     rec.class_name = class_tags[0].name
+
+    @api.depends('payment_line_ids.subtotal')
+    def _compute_total_amount(self):
+        for rec in self:
+            rec.total_amount = sum(rec.payment_line_ids.mapped('subtotal'))
 
     @api.depends('total_amount', 'paid_amount')
     def _compute_remaining_amount(self):
@@ -234,16 +234,13 @@ class EducationPayment(models.Model):
                     </p>
                 """
 
-    @api.constrains('total_amount', 'paid_amount')
-    def _check_amounts(self):
+    @api.constrains('paid_amount')
+    def _check_paid_amount(self):
         for rec in self:
-            if rec.total_amount < 0:
-                raise ValidationError('Tổng học phí không được nhỏ hơn 0.')
-
             if rec.paid_amount < 0:
                 raise ValidationError('Số tiền đã đóng không được nhỏ hơn 0.')
 
-            if rec.paid_amount > rec.total_amount:
+            if rec.total_amount and rec.paid_amount > rec.total_amount:
                 raise ValidationError('Số tiền đã đóng không được lớn hơn tổng học phí.')
 
     @api.model
@@ -257,8 +254,11 @@ class EducationPayment(models.Model):
 
     def action_confirm(self):
         for rec in self:
+            if not rec.payment_line_ids:
+                raise ValidationError('Vui lòng chọn ít nhất một sản phẩm/môn học.')
+
             if rec.total_amount <= 0:
-                raise ValidationError('Vui lòng nhập tổng học phí trước khi xác nhận.')
+                raise ValidationError('Tổng học phí phải lớn hơn 0.')
 
             if rec.paid_amount == 0:
                 rec.state = 'unpaid'
@@ -270,7 +270,7 @@ class EducationPayment(models.Model):
     def action_register_payment(self):
         for rec in self:
             if rec.total_amount <= 0:
-                raise ValidationError('Vui lòng nhập tổng học phí.')
+                raise ValidationError('Vui lòng chọn sản phẩm/môn học trước.')
 
             if rec.paid_amount <= 0:
                 raise ValidationError('Vui lòng nhập số tiền đã đóng.')
@@ -298,17 +298,17 @@ class EducationPayment(models.Model):
             if not rec.student_id:
                 raise ValidationError('Vui lòng chọn học sinh trước khi tạo hóa đơn.')
 
-            if not rec.subject_ids:
-                raise ValidationError('Vui lòng chọn ít nhất một môn học / khóa học.')
+            if not rec.payment_line_ids:
+                raise ValidationError('Vui lòng chọn ít nhất một sản phẩm/môn học.')
 
-            if rec.total_amount <= 0:
-                raise ValidationError('Vui lòng nhập tổng học phí trước khi tạo hóa đơn.')
-
-            subject_names = ', '.join(rec.subject_ids.mapped('name'))
-
-            line_name = f'Học phí - {subject_names}'
-            if rec.class_name:
-                line_name += f' - {rec.class_name}'
+            invoice_lines = []
+            for line in rec.payment_line_ids:
+                invoice_lines.append((0, 0, {
+                    'product_id': line.product_id.id,
+                    'name': line.name or line.product_id.display_name,
+                    'quantity': line.quantity,
+                    'price_unit': line.price_unit,
+                }))
 
             invoice = self.env['account.move'].create({
                 'move_type': 'out_invoice',
@@ -318,11 +318,7 @@ class EducationPayment(models.Model):
                 'education_payment_id': rec.id,
                 'invoice_origin': rec.name,
                 'ref': rec.name,
-                'invoice_line_ids': [(0, 0, {
-                    'name': line_name,
-                    'quantity': 1,
-                    'price_unit': rec.total_amount,
-                })],
+                'invoice_line_ids': invoice_lines,
             })
 
             rec.invoice_id = invoice.id
@@ -350,6 +346,63 @@ class EducationPayment(models.Model):
             'res_id': self.invoice_id.id,
             'target': 'current',
         }
+
+
+class EducationPaymentLine(models.Model):
+    _name = 'education.payment.line'
+    _description = 'Chi tiết Thanh Toán Học Phí'
+
+    payment_id = fields.Many2one(
+        'education.payment',
+        string='Phiếu thanh toán',
+        required=True,
+        ondelete='cascade'
+    )
+
+    class_name = fields.Char(
+        string='Lớp',
+        related='payment_id.class_name',
+        readonly=True
+    )
+
+    product_id = fields.Many2one(
+        'product.product',
+        string='Sản phẩm / Môn học',
+        required=True,
+        domain="[('sale_ok', '=', True)]"
+    )
+
+    name = fields.Char(
+        string='Diễn giải'
+    )
+
+    quantity = fields.Float(
+        string='Số lượng',
+        default=1.0
+    )
+
+    price_unit = fields.Float(
+        string='Đơn giá'
+    )
+
+    subtotal = fields.Float(
+        string='Thành tiền',
+        compute='_compute_subtotal',
+        store=True
+    )
+
+    @api.onchange('product_id')
+    def _onchange_product_id(self):
+        for line in self:
+            if line.product_id:
+                line.name = line.product_id.display_name
+                line.price_unit = line.product_id.lst_price
+                line.quantity = 1.0
+
+    @api.depends('quantity', 'price_unit')
+    def _compute_subtotal(self):
+        for line in self:
+            line.subtotal = line.quantity * line.price_unit
 
 
 class AccountMove(models.Model):

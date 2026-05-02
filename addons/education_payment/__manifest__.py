@@ -5,15 +5,15 @@
     'description': '''
         Module Quản Lý Thanh Toán Học Phí:
         - Ghi nhận học phí của từng học sinh
-        - Liên kết với hóa đơn Odoo
+        - Liên kết với Liên hệ
+        - Liên kết với Sản phẩm trong Bán hàng
+        - Tự lấy học phí theo sản phẩm đã chọn
         - Tạo hóa đơn từ phiếu thanh toán
         - Tạo mã QR chuyển khoản VietQR
-        - Theo dõi trạng thái thanh toán
-        - Chọn nhiều môn học cho một phiếu thanh toán
     ''',
     'author': 'Nhóm 5 - UTH',
     'category': 'Education',
-    'depends': ['base', 'contacts', 'account', 'makeup_schedule'],
+    'depends': ['base', 'contacts', 'account', 'product'],
     'data': [
         'security/ir.model.access.csv',
         'views/education_payment_view.xml',
